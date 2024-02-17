@@ -1,6 +1,6 @@
 module.exports = {
   config: {
-    host: 'db',
+    host: 'database',
     user: 'root',
     password: 'root',
     database: 'nodedb'

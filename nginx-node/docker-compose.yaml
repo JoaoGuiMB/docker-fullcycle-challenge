@@ -5,40 +5,44 @@ services:
     build: 
       context: node
     container_name: app
-    entrypoint: wait-for db:3306 -t 40 -- node server.js
-    networks:
-      - node-network
     volumes:
-      - ./node:/usr/src/app
-    tty: true
+      - ./node:/usr/src/node
+    entrypoint: npm start --prefix /usr/src/node
     ports:
-      - "81:3000"
-    depends_on:
-      - db
-
-  db:
-    image: mysql:5.7
-    command: --innodb-use-native-aio=0
-    container_name: db
-    restart: always
+      - 3000:3000
     tty: true
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    build: 
+      context: ./database
+    container_name: database
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
-    ports:
-      - "3306:3306"
-    networks:
-      - node-network
-  
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
   nginx:
     build: ./nginx
     ports:
       - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
     depends_on:
       - app
 
 networks:
   node-network:
     driver: bridge
+
+volumes:
+  mysql:
+    driver: local

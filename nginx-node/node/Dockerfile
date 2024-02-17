@@ -1,12 +1,9 @@
-FROM node:18
-
-RUN apt update && \
-    apt install -y wget netcat-traditional && \
-    wget -q -O /usr/bin/wait-for https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for && \
-    chmod +x /usr/bin/wait-for
+FROM node:20-slim
 
 USER node
 
+WORKDIR /usr/src/node
+
 EXPOSE 3000
 
-# CMD ["node", "index.js"]
+ENTRYPOINT [ "node", "server.js" ]
