@@ -7,7 +7,7 @@ services:
     container_name: app
     volumes:
       - ./node:/usr/src/node
-    entrypoint: npm start --prefix /usr/src/node
+    entrypoint: sh -c "npm install --prefix /usr/src/node && npm start --prefix /usr/src/node"
     ports:
       - 3000:3000
     tty: true
